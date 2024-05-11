@@ -7,7 +7,7 @@ import asyncio
 from time import time
 from PIL import Image
 
-DISPLAY_IMAGES = os.environ.get('DISPLAY_IMAGES', True)
+DISPLAY_IMAGES = os.environ.get('DISPLAY_IMAGES', 'true') == 'true'
 
 lower_red_hsv_1 = np.array([ 0, 175, 20 ])
 higher_red_hsv_1 = np.array([ 10, 255, 255 ])
