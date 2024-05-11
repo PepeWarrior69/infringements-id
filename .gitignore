@@ -1,2 +1,4 @@
 /storage/*.webp
 */__pycache__
+
+.env

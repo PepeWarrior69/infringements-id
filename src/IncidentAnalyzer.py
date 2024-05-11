@@ -6,8 +6,13 @@ import requests
 import asyncio
 from time import time
 from PIL import Image
+from dotenv import load_dotenv
 
-DISPLAY_IMAGES = os.environ.get('DISPLAY_IMAGES', 'true') == 'true'
+load_dotenv('.env')
+
+print("os.environ = ", os.environ)
+
+DISPLAY_IMAGES = os.environ.get('DISPLAY_IMAGES', 'false') == 'true'
 
 lower_red_hsv_1 = np.array([ 0, 175, 20 ])
 higher_red_hsv_1 = np.array([ 10, 255, 255 ])
@@ -17,7 +22,11 @@ higher_red_hsv_1 = np.array([ 10, 255, 255 ])
 lower_red_hsv_2 = np.array([ 175, 175, 100 ])
 higher_red_hsv_2 = np.array([ 180, 255, 255 ])
 
-haar_cascade = os.environ.get('HAAR_CASCADE_PATH', 'C:\studyProjects\infringements-id\src\cars.xml')
+haar_cascade = os.environ.get('HAAR_CASCADE_PATH', None)
+
+if not haar_cascade:
+    raise Exception('HAAR_CASCADE_PATH env is missing!')
+
 CLF = cv2.CascadeClassifier(haar_cascade)
 FONT = cv2.FONT_HERSHEY_COMPLEX
 
@@ -92,7 +101,7 @@ class IncidentAnalyzer:
         
         return is_car_detected, frame
     
-    async def register_incident(self, epoch, road_frame_filename, full_frame_filename):
+    def register_incident(self, epoch, road_frame_filename, full_frame_filename):
         endpoint = os.environ.get('API_ENDPOINT', None)
         payload = {
             'is_red_traffic_light_detected': True,
@@ -105,7 +114,7 @@ class IncidentAnalyzer:
             print('Endpoint is missing!')
         
         try:
-            await requests.post(endpoint, json=payload)
+            requests.post(endpoint, json=payload)
         except Exception as err:
             print(f'Error during POST request ({endpoint=}) err = ', err)
     
@@ -137,9 +146,13 @@ class IncidentAnalyzer:
         
         if is_detected and self.frames_since_last_save > 10:
             _, analyzed_road_full_frame = self.check_frame_for_car('full frame', frame)
-            storage = os.environ.get('STORAGE_PATH', 'C:\studyProjects\infringements-id\storage')
+            storage = os.environ.get('STORAGE_PATH', None)
             
             print('storage PATH = ', storage)
+            
+            if not storage:
+                print('STORAGE_PATH env is missing!')
+                return
             
             os.chdir(storage)
             
