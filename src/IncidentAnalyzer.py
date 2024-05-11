@@ -7,7 +7,7 @@ import asyncio
 from time import time
 from PIL import Image
 
-DISPLAY_IMAGES = os.environ.get('DISOLAY_IMAGES', True)
+DISPLAY_IMAGES = os.environ.get('DISPLAY_IMAGES', True)
 
 lower_red_hsv_1 = np.array([ 0, 175, 20 ])
 higher_red_hsv_1 = np.array([ 10, 255, 255 ])
@@ -95,6 +95,7 @@ class IncidentAnalyzer:
     async def register_incident(self, epoch, road_frame_filename, full_frame_filename):
         endpoint = os.environ.get('API_ENDPOINT', None)
         payload = {
+            'is_red_traffic_light_detected': True,
             'epoch': epoch,
             'road_frame_filename': road_frame_filename,
             'full_frame_filename': full_frame_filename,
